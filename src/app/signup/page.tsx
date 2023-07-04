@@ -4,23 +4,35 @@ import React, { useEffect } from "react"
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 
 export default function SignUp(){
     const router=useRouter();
     const [user,setUser]=React.useState({
         username:"",
-        email:"",
+        email:"",   
         password:"",
     })
     const [disabledButton,setDisabledButton]=React.useState(false)
 
     const onSignUp=async ()=>{
         try {
-            const response = await axios.post("/api/users/signup", user);            
+            const response = await axios.post("/api/users/signup", user);
             console.log(response)
-            router.push("/login")
+            const data = response.data;
+            console.log(data)
+      
+            if (data.success=== true) {
+              console.log("Signup success", data);
+              toast.success("Signup success");
+              router.push("/profile");
+            } else {
+              console.log("Signup failed", data.error);
+              toast.error(data.error);
+            }
         } catch (error:any) {
+            console.log("Login failed", error.message);
             toast.error(error.message);
         }
     }
@@ -34,6 +46,8 @@ export default function SignUp(){
         }
     },[user])
     return (
+        <>
+        <Toaster />
         <div className="flex flex-col items-center justify-center min-h-screen py-2">
             <h1>SignUp</h1>
             <br />
@@ -50,5 +64,6 @@ export default function SignUp(){
             <button className="p-2 mt-6 border bg-gray-200 rounded-lg text-black" onClick={onSignUp} >{disabledButton ? "NoSignUp" : "SignUp"}</button>
             <Link href="/login" className="mt-4">Already SignUp ? Go to Login</Link>
         </div>
+        </>
     )
 }

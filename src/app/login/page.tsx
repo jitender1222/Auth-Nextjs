@@ -1,51 +1,84 @@
 "use client";
 import Link from "next/link";
-import React, { useEffect } from "react"
-import { useRouter } from "next/navigation";
+import React, {useEffect} from "react";
+import {useRouter} from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 
-export default function Login(){
-    const router=useRouter();
-    const [user,setUser]=React.useState({
-        email:"",
-        password:"",
+export default function LoginPage() {
+    const router = useRouter();
+    const [user, setUser] = React.useState({
+        email: "",
+        password: "",
+       
     })
-    const [disabledButton,setDisabledButton]=React.useState(false)
+    const [buttonDisabled, setButtonDisabled] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
 
-    const onLogin=async ()=>{
 
+    const onLogin = async () => {
         try {
-            const response = await axios.post("/api/users/login", user);            
-            console.log(response)
-            router.push("/profile")
+            setLoading(true);
+            const response = await axios.post("/api/users/login", user);
+            const data = response.data;
+      
+            if (data.success=== true) {
+              console.log("Login success", data);
+              toast.success("Login success");
+              router.push("/profile");
+            } else {
+              console.log("Login failed", data.error);
+              toast.error(data.error);
+            }
         } catch (error:any) {
+            console.log("Login failed", error.message);
             toast.error(error.message);
+        } finally{
+        setLoading(false);
         }
     }
 
-    useEffect(()=>{
-        if(user.email.length>0 && user.password.length>0){
-            setDisabledButton(false)
+    useEffect(() => {
+        if(user.email.length > 0 && user.password.length > 0) {
+            setButtonDisabled(false);
+        } else{
+            setButtonDisabled(true);
         }
-        else{
-            setDisabledButton(true)
-        }
-    },[user])
+    }, [user]);
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen py-2">
-            <h1>Login</h1>
-            <br />
-
-            <label htmlFor="email">Email</label>
-            <input className="rounded-lg p-2 text-black" id="email" type="text" value={user.email} onChange={(e)=> setUser({...user,email:e.target.value})} placeholder="Enter Email" />
-
-            <label htmlFor="password">Password</label>
-            <input className="rounded-lg p-2 text-black" id="password" type="text" value={user.password} onChange={(e)=> setUser({...user,password:e.target.value})} placeholder="Enter Password" />
-
-            <button className="p-2 mt-6 border bg-gray-200 rounded-lg text-black" onClick={onLogin} >{disabledButton ? "NoLogin" : "LogIn"}</button>
-            <Link href="/signup" className="mt-4">Didnt SignUp ? Go to SignUp</Link>
+        <>
+        <Toaster />
+    <div className="flex flex-col items-center justify-center min-h-screen py-2">
+        <h1>{loading ? "Processing" : "Login"}</h1>
+        <hr />
+        
+        <label htmlFor="email">email</label>
+        <input 
+        className="p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600 text-black"
+            id="email"
+            type="text"
+            value={user.email}
+            onChange={(e) => setUser({...user, email: e.target.value})}
+            placeholder="email"
+            />
+        <label htmlFor="password">password</label>
+        <input 
+        className="p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600 text-black"
+            id="password"
+            type="password"
+            value={user.password}
+            onChange={(e) => setUser({...user, password: e.target.value})}
+            placeholder="password"
+            />
+            <button
+            onClick={onLogin}
+            className="p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600">Login here</button>
+            <Link href="/signup">Visit Signup page</Link>
         </div>
+        </>
     )
+
 }

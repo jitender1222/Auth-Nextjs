@@ -12,12 +12,16 @@ export async function POST(request: NextRequest){
         const reqBody=await request.json();
         const {username,email,password}=reqBody;
 
+        // console.log(reqBody)
+
         if(!username || !email || !password) {
+            
             return NextResponse.json({
                 message:"All fields are required",
                 status:500
             })
         }
+
 
         // check if the user exist or not 
 
@@ -30,6 +34,8 @@ export async function POST(request: NextRequest){
             })
         }
 
+        // console.log("user",user)
+
         // hash password
 
         const salt=await bcryptjs.genSalt(10)
@@ -38,7 +44,7 @@ export async function POST(request: NextRequest){
         const newUser=new User({
             username,
             email,
-            passsword:hashedPassword
+            password:hashedPassword
         })
 
         const saveUser=await newUser.save();

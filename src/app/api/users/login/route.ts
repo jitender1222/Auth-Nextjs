@@ -13,23 +13,25 @@ export async function POST(request: NextRequest){
         const reqBody=await request.json();
         const {email,password}=reqBody;
 
-        if(email || !password) {
+        if(!email || !password) {
             return NextResponse.json({
                 message:"All fields are required",
-                status:500
+                status:400
             })
         }
 
         // check if the user exist or not 
 
         const user=await User.findOne({email})
+        console.log("user",user)
 
         if(!user){
             return NextResponse.json({
+                success:"false",
                 error:"User Does not Exist",
                 status:400
             })
-        }
+        }   
 
         // check for password
 
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest){
         // create token data
 
         const tokenData={
-            _id:user.id,
+            id:user._id,
             username:user.username,
             email:user.email
         }
@@ -69,7 +71,8 @@ export async function POST(request: NextRequest){
     } catch (error:any) {
         return NextResponse.json({
             error:error.message,
-            status:400
+            status:500
+
         })
     }
 }
