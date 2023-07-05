@@ -13,7 +13,27 @@ export async function POST (request:NextResponse){
         const {token}=await reqBody
         console.log(token);
 
-        User.findOne({verifyToken:token,verifyTokenExpiry:{$gt:Date.now()}})
+        const user=await User.findOne({verifyToken:token,verifyTokenExpiry:{$gt:Date.now()}})
+        console.log("user",user);
+
+        if(!user){
+
+            return NextResponse.json({
+                message:"Invalid token",
+                status:400
+            })
+        }
+
+        user.isVerified=true;
+        user.verifyToken=undefined;
+        user.verifyTokenExpiry=undefined;
+        await user.save();
+
+        return NextResponse.json({
+            message:"Email verified successfully",
+            success:true,
+            user
+        })
         
         
     } catch (error:any) {

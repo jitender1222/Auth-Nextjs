@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 
 
 export default function SignUp(){
+    const [loading,setLoading]=useState(false);
     const router=useRouter();
     const [user,setUser]=React.useState({
         username:"",
@@ -18,15 +19,17 @@ export default function SignUp(){
 
     const onSignUp=async ()=>{
         try {
+            setLoading(true);
             const response = await axios.post("/api/users/signup", user);
             console.log(response)
+            setLoading(false);
             const data = response.data;
             console.log(data)
       
             if (data.success=== true) {
               console.log("Signup success", data);
               toast.success("Signup success");
-              router.push("/profile");
+              router.push("/verifyemail");
             } else {
               console.log("Signup failed", data.error);
               toast.error(data.error);
@@ -49,7 +52,7 @@ export default function SignUp(){
         <>
         <Toaster />
         <div className="flex flex-col items-center justify-center min-h-screen py-2">
-            <h1>SignUp</h1>
+            <h1>{loading ? "Processing......... " :" SignUp"}</h1>
             <br />
 
             <label htmlFor="username">UserName</label>
